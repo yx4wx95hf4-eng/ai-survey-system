@@ -456,8 +456,12 @@ body {
 }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>window.addEventListener('error',function(e){if(e.target&&e.target.tagName==='SCRIPT'&&e.target.src.includes('chart.js')){document.getElementById('chart-fallback-msg').style.display='block';}},true);</script>
 </head>
 <body>
+
+<!-- Chart.js 加载失败提示 -->
+<div id="chart-fallback-msg" style="display:none;background:#fff3cd;color:#856404;text-align:center;padding:10px;font-size:14px;position:sticky;top:0;z-index:9999;">图表组件加载失败，请刷新页面或检查网络连接</div>
 
 <!-- ===== Login ===== -->
 <div id="login-page" class="login-wrap">
@@ -630,7 +634,7 @@ async function checkToken() {
     const r = await fetch(API_BASE+'/api/admin/check',{headers:{'X-Admin-Token':adminToken}});
     if (r.ok) { showAdmin(); loadDashboard(); }
     else { localStorage.removeItem('survey_admin_token'); adminToken = null; }
-  } catch {}
+  } catch { console.error('Request failed'); }
 }
 
 // ========== 登录/登出 ==========
@@ -673,7 +677,7 @@ async function checkSurveyStatus() {
     const d = await r.json();
     surveyIsOpen = d.open;
     updateSurveyToggleUI(d);
-  } catch {}
+  } catch { console.error('Request failed'); }
 }
 
 async function toggleSurvey() {
@@ -682,6 +686,7 @@ async function toggleSurvey() {
       method:'POST',headers:{'Content-Type':'application/json','X-Admin-Token':adminToken},
       body:JSON.stringify({open:!surveyIsOpen})
     });
+    if (!r.ok) throw new Error('服务器返回错误 ('+r.status+')');
     const d = await r.json();
     if (d.success) {
       surveyIsOpen = d.open;
@@ -731,7 +736,7 @@ async function loadDataMgmt() {
     totalCount = stats.total || 0;
     scheduleInfo = await rSched.json();
     statusInfo = await rStatus.json();
-  } catch {}
+  } catch { console.error('Request failed'); }
 
   const switchLabel = statusInfo.open ? '收集中（点击可暂停）' : '已暂停（点击可开启）';
   const switchColor = statusInfo.effective_open ? 'var(--c-success)' : 'var(--c-danger)';
@@ -853,7 +858,7 @@ async function openSchedulePanel() {
     const d = await r.json();
     document.getElementById('sp-start').value = d.start_time || '';
     document.getElementById('sp-end').value   = d.end_time   || '';
-  } catch {}
+  } catch { console.error('Request failed'); }
 
   updateSpStatusRow();
   panel.classList.add('open');
@@ -950,6 +955,7 @@ async function loadDashboard(silent) {
   if (!silent) mc.innerHTML = '<div class="spinner">加载统计数据...</div>';
   try {
     const r = await fetch(API_BASE+'/api/admin/stats',{headers:{'X-Admin-Token':adminToken}});
+    if (!r.ok) throw new Error('服务器返回错误 ('+r.status+')');
     statsData = await r.json();
     document.getElementById('nav-total').textContent = statsData.total || 0;
 
@@ -1046,6 +1052,7 @@ function renderDashboard(data) {
 async function loadTrendChart() {
   try {
     const r = await fetch(API_BASE+'/api/admin/trend',{headers:{'X-Admin-Token':adminToken}});
+    if (!r.ok) throw new Error('服务器返回错误 ('+r.status+')');
     const d = await r.json();
     const trend = d.trend || [];
     const ctx = document.getElementById('trend-chart');
@@ -1087,7 +1094,7 @@ async function loadTrendChart() {
         animation:{duration:900,easing:'easeOutQuart'}
       }
     });
-  } catch {}
+  } catch { console.error('Request failed'); }
 }
 
 function buildInsights(data) {
@@ -1433,6 +1440,7 @@ async function loadCrossAnalysis(silent) {
   if (!silent) mc.innerHTML = '<div class="spinner">加载交叉分析...</div>';
   try {
     const r = await fetch(API_BASE+'/api/admin/cross',{headers:{'X-Admin-Token':adminToken}});
+    if (!r.ok) throw new Error('服务器返回错误 ('+r.status+')');
     crossData = await r.json();
     if (!crossData.by_size.length && !crossData.by_industry.length) {
       mc.innerHTML = '<div class="empty-state"><div class="empty-icon">📊</div><h2>数据不足</h2><p>需要更多问卷数据才能生成交叉分析</p></div>';
@@ -1628,6 +1636,7 @@ async function loadResponses(page, silent) {
 
   try {
     const r = await fetch(API_BASE+'/api/admin/responses?'+params.toString(),{headers:{'X-Admin-Token':adminToken}});
+    if (!r.ok) throw new Error('服务器返回错误 ('+r.status+')');
     const d = await r.json();
     if (d.total===0) {
       mc.innerHTML = '<div class="empty-state"><div class="empty-icon">📦</div><h2>暂无匹配的问卷记录</h2></div>';
