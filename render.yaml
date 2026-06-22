@@ -6,4 +6,4 @@ services:
     startCommand: gunicorn server:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120
     envVars:
       - key: PYTHON_VERSION
-        value: 3.13.12
+        value: 3.11.11
