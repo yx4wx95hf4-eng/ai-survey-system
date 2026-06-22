@@ -18,7 +18,11 @@ from datetime import datetime
 from functools import wraps
 from flask import Flask, request, jsonify, g, send_from_directory
 
-app = Flask(__name__, static_folder='static', static_url_path='')
+# 应用根目录（兼容本地开发和云端gunicorn部署）
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_DIR = os.path.join(BASE_DIR, 'static')
+
+app = Flask(__name__, static_folder=STATIC_DIR, static_url_path='')
 app.config['SECRET_KEY'] = secrets.token_hex(32)
 
 # 管理员密码 - SHA256哈希存储
@@ -168,12 +172,12 @@ def require_admin(f):
 
 @app.route('/')
 def serve_survey():
-    return send_from_directory('static', 'index.html')
+    return send_from_directory(STATIC_DIR, 'index.html')
 
 
 @app.route('/admin')
 def serve_admin():
-    return send_from_directory('static', 'admin.html')
+    return send_from_directory(STATIC_DIR, 'admin.html')
 
 
 # ==================== 问卷API ====================
@@ -258,6 +262,10 @@ def validate_survey_data(data):
 
     has_skip = B1_SKIP_VALUE in b1
 
+    # 2.5) B1 排他性校验：若选了"尚未应用AI"，不应同时选其他AI技术选项
+    if has_skip and len(b1) > 1:
+        return False, '"尚未应用任何AI技术"为排他选项，请勿与其他AI技术同时勾选，请修改后重新提交'
+
     # 3) B1 跳题逻辑校验
     if has_skip:
         # 选了"尚未应用AI"，B2-B7 应跳过；B8 必填
@@ -315,7 +323,7 @@ def health_check():
         return jsonify({
             'status': 'ok',
             'service': '企业AI应用与技能需求调查问卷系统',
-            'version': 'v2.6',
+            'version': 'v2.7',
             'database': 'connected',
             'total_responses': total,
             'survey_open': db_is_open,
