@@ -22,7 +22,7 @@ from flask import Flask, request, jsonify, g, send_from_directory
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(BASE_DIR, 'static')
 
-app = Flask(__name__, static_folder=STATIC_DIR, static_url_path='')
+app = Flask(__name__)
 app.config['SECRET_KEY'] = secrets.token_hex(32)
 
 # 管理员密码 - SHA256哈希存储
@@ -178,6 +178,12 @@ def serve_survey():
 @app.route('/admin')
 def serve_admin():
     return send_from_directory(STATIC_DIR, 'admin.html')
+
+
+@app.route('/<path:filename>')
+def serve_static(filename):
+    """服务静态资源（CSS/JS/图片等），API路由优先匹配"""
+    return send_from_directory(STATIC_DIR, filename)
 
 
 # ==================== 问卷API ====================
