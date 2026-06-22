@@ -50,7 +50,7 @@ python server.py
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/yx4wx95hf4-eng/ai-survey-system)
 
 > 点击按钮 → 授权 GitHub → 自动读取 render.yaml → 2分钟完成部署  
-> 部署后将获得公开 URL（如 `https://ai-survey-system.onrender.com/`）  
+> 部署后将获得公开 URL（如 `https://ybx4-ai-survey.onrender.com/`）  
 > **任何人用手机/电脑浏览器即可访问，无需微信、无需电脑在线！**
 
 部署后公开访问地址：
