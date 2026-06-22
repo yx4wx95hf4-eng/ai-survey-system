@@ -1047,7 +1047,8 @@ function renderQuestions(sec) {
 
     // B1的跳题提示
     if (q.skipTrigger) {
-      html += `<p style="font-size:12px;color:var(--warning);margin-top:8px;">⚠ 选择"${q.skipTrigger}"后将跳过部分题目</p>`;
+      const skipLabel = q.opts.find(o => o.startsWith(q.skipTrigger + '.')) || q.skipTrigger;
+      html += `<p style="font-size:12px;color:var(--warning);margin-top:8px;">⚠ 选择"${skipLabel}"后将跳过部分题目</p>`;
     }
 
     html += `</div>`;
@@ -1181,6 +1182,31 @@ function toggleCheckbox(qid, value, el) {
   } else {
     vals.push(value);
   }
+
+  // B1 排他性选择逻辑：I选项与其他选项互斥
+  if (qid === 'B1') {
+    const SKIP_VALUE = 'I. 尚未应用任何AI技术';
+    const card = el.closest('.q-card');
+    if (value === SKIP_VALUE) {
+      // 选中了"I"，取消其他所有选项
+      if (vals.includes(SKIP_VALUE)) {
+        vals = [SKIP_VALUE];
+        card.querySelectorAll('.opt-item').forEach(o => {
+          const optVal = o.getAttribute('data-value');
+          if (optVal !== SKIP_VALUE) o.classList.remove('selected');
+          else o.classList.add('selected');
+        });
+      }
+    } else if (vals.some(v => v !== SKIP_VALUE)) {
+      // 选中了非I选项，移除I
+      const iIdx = vals.indexOf(SKIP_VALUE);
+      if (iIdx >= 0) vals.splice(iIdx, 1);
+      card.querySelectorAll('.opt-item').forEach(o => {
+        if (o.getAttribute('data-value') === SKIP_VALUE) o.classList.remove('selected');
+      });
+    }
+  }
+
   state.answers[qid] = vals;
 
   // 处理"其他"输入框显示
