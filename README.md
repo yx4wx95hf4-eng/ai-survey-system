@@ -43,10 +43,17 @@ python server.py
 # 后台: http://localhost:8080/admin
 ```
 
-### 方式二：云端部署 (推荐)
+### 方式二：云端部署 (推荐) 🌐
 
-**一键部署到 Render.com：**
+**👉 一键部署到 Render.com（点击下方按钮）：**
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/yx4wx95hf4-eng/ai-survey-system)
 
-部署后获得公开 URL，无需电脑在线，手机/电脑均可访问。
+> 点击按钮 → 授权 GitHub → 自动读取 render.yaml → 2分钟完成部署  
+> 部署后将获得公开 URL（如 `https://ai-survey-system.onrender.com/`）  
+> **任何人用手机/电脑浏览器即可访问，无需微信、无需电脑在线！**
+
+部署后公开访问地址：
+- 📋 问卷前台：`https://你的应用名.onrender.com/`
+- ⚙️ 管理后台：`https://你的应用名.onrender.com/admin`
+- 🔑 管理密码：`admin2026`
